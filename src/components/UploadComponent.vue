@@ -6,6 +6,11 @@
       <input type="file" class="form-control" @change="handleFileUpload">
     </div>
 
+    <div class="mb-3">
+      <label for="thresholdRange" class="form-label">Confiança mínima: {{ threshold }}</label>
+      <input type="range" class="form-range" id="thresholdRange" min="0" max="1" step="0.01" v-model="threshold">
+    </div>
+
     <button class="btn btn-primary" @click="uploadFile">Enviar</button>
 
     <div v-if="loading" class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
@@ -28,6 +33,15 @@
       <img :src="processedImage" class="img-fluid border rounded shadow" style="max-width: 500px; height: auto;"
         alt="Imagem detectada">
     </div>
+
+    <div v-if="Object.keys(detectionsCount).length > 0" class="mt-4 text-center">
+      <h3>Ovos Detectados:</h3>
+      <ul class="list-group">
+        <li v-for="(count, className) in detectionsCount" :key="className" class="list-group-item">
+          <strong>{{ className }}</strong>: {{ count }} ovos detectados
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -39,13 +53,16 @@ export default {
     return {
       file: null,
       processedImage: null,
-      loading: false
+      threshold: 0.5,
+      loading: false,
+      detectionsCount: {}  // Inicializa a contagem de detecções
     };
   },
   methods: {
     handleFileUpload(event) {
       this.file = event.target.files[0];
       this.processedImage = null;
+      this.detectionsCount = {};  // Resetar a contagem ao enviar uma nova imagem
     },
     async uploadFile() {
       if (!this.file) {
@@ -56,15 +73,22 @@ export default {
       let formData = new FormData();
       formData.append("file", this.file);
 
+      const url = `http://localhost:8000/predict/?threshold=${this.threshold}`;
+
       this.loading = true;
 
       try {
-        const response = await axios.post("http://localhost:8000/predict/", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          responseType: "blob"
+        const response = await axios.post(url, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
         });
 
-        this.processedImage = URL.createObjectURL(response.data);
+        // Processar resposta JSON
+        this.detectionsCount = response.data.detections_count;
+
+        // Converter imagem hexadecimal de volta para exibição
+        const imageHex = response.data.image;
+        const binaryData = new Uint8Array(imageHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        this.processedImage = URL.createObjectURL(new Blob([binaryData], { type: "image/jpeg" }));
       } catch (error) {
         console.error("Erro ao enviar arquivo:", error);
         alert("Erro ao processar a imagem.");
