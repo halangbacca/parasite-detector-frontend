@@ -20,7 +20,9 @@
         <strong>Nota:</strong> modelos maiores (como <code>yolov11x</code>) oferecem melhores resultados, mas também
         exigem <strong>mais tempo de processamento e mais recursos computacionais</strong>.<br>
         Para <strong>vídeos</strong>, devido ao alto consumo de CPU/GPU, apenas o modelo <code>yolov11n</code> está
-        disponível.
+        disponível.<br><br>
+        <strong>Aviso:</strong> esta aplicação pode cometer erros e <strong>não substitui o diagnóstico de um
+          profissional capacitado</strong>.
       </div>
     </div>
 
