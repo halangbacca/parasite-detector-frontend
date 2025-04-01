@@ -66,11 +66,23 @@
       </ul>
     </div>
 
-    <div v-if="csvUrl || pdfUrl" class="mt-3 text-center">
+    <div v-if="csvUrl || pdfUrl" class="mt-3 text-center mb-5">
       <h4>Relatórios:</h4>
       <a v-if="csvUrl" :href="csvUrl" target="_blank" class="btn btn-outline-primary me-2">📄 Baixar CSV</a>
       <a v-if="pdfUrl" :href="pdfUrl" target="_blank" class="btn btn-outline-danger">📕 Baixar PDF</a>
     </div>
+
+    <footer class="text-center text-muted mt-5 mb-4 small">
+      <div>Desenvolvido por <strong>Halan Germano Bacca</strong> - PPGINFOS - UFSC - 2025</div>
+      <div class="mt-2">
+        <a href="https://github.com/halangbacca" target="_blank" class="me-3 text-decoration-none text-dark">
+          <i class="bi bi-github"></i> GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/halanbacca" target="_blank" class="text-decoration-none text-dark">
+          <i class="bi bi-linkedin"></i> LinkedIn
+        </a>
+      </div>
+    </footer>
   </div>
 </template>
 
