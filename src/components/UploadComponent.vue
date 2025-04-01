@@ -11,14 +11,16 @@
       <select id="modelSelect" v-model="selectedModel" class="form-select">
         <option disabled value="">Selecione um modelo</option>
         <option value="yolov11n">YOLOv11n</option>
-        <option value="yolov11s">YOLOv11s</option>
-        <option value="yolov11m">YOLOv11m</option>
-        <option value="yolov11l">YOLOv11l</option>
-        <option value="yolov11x">YOLOv11x</option>
+        <option value="yolov11s" :disabled="isVideo">YOLOv11s</option>
+        <option value="yolov11m" :disabled="isVideo">YOLOv11m</option>
+        <option value="yolov11l" :disabled="isVideo">YOLOv11l</option>
+        <option value="yolov11x" :disabled="isVideo">YOLOv11x</option>
       </select>
       <div class="form-text mt-1">
-        <strong>Nota:</strong> quanto <strong>maior o modelo</strong> (ex: <code>yolov11x</code>), maior a sensibilidade
-        e especificidade, mas também <strong>maior o tempo de processamento</strong>.
+        <strong>Nota:</strong> modelos maiores (como <code>yolov11x</code>) oferecem melhores resultados, mas também
+        exigem <strong>mais tempo de processamento e mais recursos computacionais</strong>.<br>
+        Para <strong>vídeos</strong>, devido ao alto consumo de CPU/GPU, apenas o modelo <code>yolov11n</code> está
+        disponível.
       </div>
     </div>
 
@@ -85,6 +87,7 @@ export default {
       selectedModel: "yolov11n",
       csvUrl: null,
       pdfUrl: null,
+      isVideo: false,
     };
   },
   methods: {
@@ -94,6 +97,13 @@ export default {
       this.detectionsCount = {};
       this.csvUrl = null;
       this.pdfUrl = null;
+
+      if (this.file && this.file.type.startsWith("video")) {
+        this.isVideo = true;
+        this.selectedModel = "yolov11n";
+      } else {
+        this.isVideo = false;
+      }
     },
     async uploadFile() {
       if (!this.file) {
