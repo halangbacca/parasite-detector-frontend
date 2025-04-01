@@ -33,13 +33,14 @@
 
     <div v-if="loading" class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Processando Arquivo...</h5>
-          </div>
-          <div class="modal-body text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Carregando...</span>
+        <div class="modal-content p-4">
+          <h5 class="modal-title text-center">
+            {{ isVideo ? "Processando vídeo..." : "Processando imagem..." }}
+          </h5>
+          <div class="progress mt-3">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+              :style="{ width: progress + '%' }">
+              {{ progress }}%
             </div>
           </div>
         </div>
@@ -88,6 +89,8 @@ export default {
       csvUrl: null,
       pdfUrl: null,
       isVideo: false,
+      progress: 0,
+      ws: null,
     };
   },
   methods: {
@@ -105,6 +108,18 @@ export default {
         this.isVideo = false;
       }
     },
+    iniciarWebSocket() {
+      this.ws = new WebSocket("ws://localhost:8000/ws/progresso");
+      this.ws.onmessage = (event) => {
+        this.progress = parseInt(event.data);
+      };
+    },
+    fecharWebSocket() {
+      if (this.ws) {
+        this.ws.close();
+        this.ws = null;
+      }
+    },
     async uploadFile() {
       if (!this.file) {
         alert("Selecione um arquivo primeiro!");
@@ -120,7 +135,9 @@ export default {
       formData.append("file", this.file);
 
       const url = `http://localhost:8000/predict/?threshold=${this.threshold}&model=${this.selectedModel}`;
+      this.progress = 0;
       this.loading = true;
+      this.iniciarWebSocket();
 
       try {
         const response = await axios.post(url, formData, {
@@ -136,7 +153,9 @@ export default {
         console.error("Erro ao enviar arquivo:", error);
         alert("Erro ao processar o arquivo.");
       } finally {
+        this.fecharWebSocket();
         this.loading = false;
+        this.progress = 0;
       }
     }
   }
@@ -150,6 +169,6 @@ export default {
 }
 
 .modal-dialog {
-  max-width: 300px;
+  max-width: 400px;
 }
 </style>
